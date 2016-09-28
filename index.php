@@ -21,9 +21,9 @@ function pageHeader()
 		echo'<div class="menubutton"><a href="Clientes.php" target="iframe">Nossos Clientes</a></div>';
 		echo'<div class="menubutton"><a href="Cardapio.php" target="iframe">Cardápio</a></div>';
 		echo'<div class="menubutton"><a href="CadPizza.php" target="iframe">Cadastrar Produto</a></div>';
-		//echo'<div class="menubutton"><a href="" target="iframe">Excluir Produto</a></div>';
+		echo'<div class="menubutton"><a href="DelProduto.php" target="iframe">Excluir Produto</a></div>';
 		echo'<div class="menubutton"><a href="CadClientes.php" target="iframe">Cadastrar Cliente</a></div>';
-		//echo'<div class="menubutton"><a href="" target="iframe">Excluir Cliente</a></div>';
+		echo'<div class="menubutton"><a href="DelCliente.php" target="iframe">Excluir Cliente</a></div>';
 		
 		echo'<div class="menubutton"><a href="CadPedido.php" target="iframe">Novo Pedido</a></div>';
 		echo'';
