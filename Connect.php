@@ -5,13 +5,14 @@
  $dbname = "DUCHEF";
  $conn = new mysqli($servername, $username, $password,$dbname);
 
-// Check connection
+// ------------------Check connection------------------
 if ($conn->connect_error) 
 {
     die("Connection failed: " . $conn->connect_error);
 }
-//-------------------------------------------------------------------------------
-//funcao que insere novos clientes na base---------------------------------------
+//--------------------------------------------------
+
+//funcao que insere novos clientes na base------------------
 function insertCliente($name,$address,$phone,$email)
 {
 	
@@ -27,12 +28,12 @@ VALUES ('$name','$address','$phone','$email');";
 		echo "Error: " . $sql . "<br>" . $conn->error;
 	}
 }
-//-------------------------------------------------------------------------------
+//----------------------------------------------
 
-//funcao que insere novos produtos na base---------------------------------------
+//funcao que insere novos produtos na base----------------
 function insertProduto($name,$value)
 {
-	$sql = "INSERT INTO produtos (NOME_PRODUTO, VALOR_PRODUTO) VALUES ('$name',$value);";
+	$sql = "INSERT INTO produtos (NOME, VALOR) VALUES ('$name',$value);";
 	
 	global $conn;
 	if ($conn->query($sql) === TRUE) 
@@ -45,8 +46,9 @@ function insertProduto($name,$value)
 	}
 	
 }
-//-------------------------------------------------------------------------------
-//---------funcao que exibe os clientes------------------------------------------
+//------------------------------------------
+
+//---------funcao que exibe os clientes--------
 
 function selectClientes($phone)
 {
@@ -89,14 +91,16 @@ else
 	}
 }
 }
-//-------------------------------------------------------------------------------
-//-----------Funcao que exibe os produtos----------------------------------------
+//-------------------------------------------------------
+
+
+//-----------Funcao que exibe os produtos-------------------
 
 function selectProdutos()
 {
 	global $conn;
       
-	$sql = "SELECT cod_produto,NOME_PRODUTO, VALOR_PRODUTO,qtd_vendida FROM produtos";
+	$sql = "SELECT id,nome,valor,qtd_vendida FROM produtos";
 	$result = $conn->query($sql);
 
 	if ($result->num_rows > 0) 
@@ -104,7 +108,7 @@ function selectProdutos()
 		// output data of each row
 		while($row = $result->fetch_assoc()) 
 		{
-			echo "<h3>ID: " . $row["cod_produto"]. " - Produto: " . $row["NOME_PRODUTO"]. " - Valor: R$" . $row["VALOR_PRODUTO"]." - Quantidade vendida: " . $row["qtd_vendida"]. " unidades</h3><br>";
+			echo "<h3>ID: " . $row["id"]. " - Produto: " . $row["nome"]. " - Valor: R$" . $row["valor"]." - Quantidade vendida: " . $row["qtd_vendida"]. " unidades</h3><br>";
 		}
 	} 
 	else
@@ -115,8 +119,9 @@ function selectProdutos()
 
 
 }
-//-------------------------------------------------------------------------------
-//------------funcao que exibe os pedidos---------------------------------------
+//------------------------------------------------------
+
+//------------funcao que exibe os pedidos-------------------
 
 function consultaPedidos($cliente)
 {
@@ -126,15 +131,34 @@ function consultaPedidos($cliente)
 if (empty($_POST["cliente"])) 
 {
       
-	$sql = "SELECT id_pedido,id_cliente, id_produto, id_bebida, data_pedido FROM PEDIDOS";
+	$sql = "SELECT CLI.ID, CLI.NOME, CLI.TELEFONE, PED.ID_PEDIDOS, PROD.NOME, PROD.VALOR, PED.DATA_PEDIDO
+			FROM CLIENTES CLI
+			INNER JOIN PEDIDOS PED
+			ON CLI.ID=PED.ID_CLIENTE
+			INNER JOIN PRODUTOS PROD
+			ON PROD.ID=PED.ID_PRODUTO
+			ORDER BY CLI.ID
+			;";
 	$result = $conn->query($sql);
-
+	
+	
 	if ($result->num_rows > 0) 
 	{
 		// output data of each row
 		while($row = $result->fetch_assoc()) 
 		{
-			echo "<h3>Pedido n. " . $row["id_pedido"]. " - ID CLIENTE: " . $row["id_cliente"]. " - ID PRODUTO: " . $row["id_produto"]." - ID BEBIDA: " . $row["id_bebida"]. " - Data do Pedido: " . $row["data_pedido"]."</h3><br>";
+			
+				/*var_dump($row);*/
+			
+			echo "Pedido n. " . $row["ID_PEDIDOS"]. 
+			" - Nome: " . $row["NOME"]. 
+			" - Telefone: " . $row["TELEFONE"].
+			" - ID Cliente: " . $row["ID"]. 
+			" - Data do Pedido: " . $row["DATA_PEDIDO"].
+			" - Valor do Produto: " . $row["VALOR"].
+			" - Produto: " . $row["NOME"].
+			"<br>";
+			
 		}
 	} 
 	else
@@ -144,7 +168,15 @@ if (empty($_POST["cliente"]))
 } 
 else 
 {
-	$sql = "SELECT id,nome,endereco,telefone,email FROM CLIENTES WHERE TELEFONE=$phone";
+	$sql = "SELECT CLI.ID, CLI.NOME, CLI.TELEFONE, PED.ID, PROD.NOME,PROD.VALOR, PED.DATA_PEDIDO
+			FROM CLIENTES CLI
+			INNER JOIN PEDIDOS PED
+			ON CLI.ID=PED.ID_CLIENTE
+			INNER JOIN PRODUTOS PROD
+			ON PROD.ID=PED.ID_PRODUTO
+			ORDER BY CLI.ID
+			WHERE CLI.ID=$cliente";
+			
 	$result = $conn->query($sql);
 
 	if ($result->num_rows > 0) 
@@ -152,7 +184,14 @@ else
 		// output data of each row
 		while($row = $result->fetch_assoc()) 
 		{
-			echo "<h3>Pedido n. " . $row["id"]. " - Nome: " . $row["nome"]. " - Endereço: " . $row["endereco"]." - Telefone: " . $row["telefone"]. " - Data do Pedido: " . $row["email"]."</h3><br>";
+			echo "Pedido n. " . $row["PED.ID"]. 
+				 " - Nome: " . $row["CLI.NOME"]. 
+				 " - Telefone: " . $row["CLI.TELEFONE"].
+				 " - ID Cliente: " . $row["CLI.ID"]. 
+				 " - Data do Pedido: " . $row["PED.DATA"].
+				 " - Valor do Produto: " . $row["PROD.VALOR"].
+				 " - Produto: " . $row["PROD.NOME"].
+				 "<br>";
 		}
 	} 
 	else
@@ -160,16 +199,17 @@ else
 		echo "0 results";
 	}
 }
+
 /*
 TESTE INNER JOIN
 
-SELECT CLIENTES.ID, CLIENTES.NOME, CLIENTES.TELEFONE, PEDIDOS.ID
-FROM CLIENTES 
-INNER JOIN PEDIDOS
-ON CLIENTES.ID=PEDIDOS.ID_CLIENTE
-INNER JOIN PRODUTOS.NOME
-
-
+SELECT CLI.ID, CLI.NOME, CLI.TELEFONE
+FROM CLIENTES CLI
+INNER JOIN PEDIDOS PED
+ON CLI.ID=PED.ID_CLIENTE
+INNER JOIN PRODUTOS PROD
+ON PROD.ID=PED.ID_PRODUTO
+ORDER BY CLI.ID
 
 
 
@@ -180,12 +220,14 @@ INNER JOIN PRODUTOS.NOME
 
 	
 }
-//funcao que insere novos pedidos na base---------------------------------------
+//------------------------------------
+
+//funcao que insere novos pedidos na base----------------
 function inserePedidos($idCliente,$pizza,$bebida)
 {
 	
 	$sql = "INSERT INTO PEDIDOS (id_cliente, id_produto, id_bebida, data_pedido)
-VALUES ($idCliente,$pizza,$bebida,now());";
+VALUES ($idCliente,$pizza,$bebida,NOW());";
 	global $conn;
 	if ($conn->query($sql) === TRUE) 
 	{
@@ -196,10 +238,41 @@ VALUES ($idCliente,$pizza,$bebida,now());";
 		echo "Error: " . $sql . "<br>" . $conn->error;
 	}
 }
-//-------------------------------------------------------------------------------
+//-------------------------------------------------
 
+//funcao que deleta clientes da base--------------------
+function deleteClientes($id)
+{
+	$sql = "DELETE FROM CLIENTES WHERE ID=$id;";
+	global $conn;
+	if ($conn->query($sql) === TRUE) 
+	{
+		echo "Cliente removido com sucesso";
+	} 
+	else 
+	{
+		echo "Error: " . $sql . "<br>" . $conn->error;
+	}
+	
+}
+//--------------------------------------------------------
 
-
+//funcao que deleta produtos da base--------------------
+function deleteProdutos($id)
+{
+	$sql = "DELETE FROM PRODUTOS WHERE ID=$id;";
+	global $conn;
+	if ($conn->query($sql) === TRUE) 
+	{
+		echo "Produto removido com sucesso";
+	} 
+	else 
+	{
+		echo "Error: " . $sql . "<br>" . $conn->error;
+	}
+	
+}
+//----------------------------------------------------
 
 
 

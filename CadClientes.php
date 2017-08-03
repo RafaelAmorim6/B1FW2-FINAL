@@ -91,7 +91,7 @@ function test_input($data) {
 //se todos os campos == OK, insere no banco
  if ($verifyName == 1 && $verifyAddress == 1 && $verifyPhone == 1 && $verifyEmail == 1)
  {
-	 insertCliente($name,$address,$phone,$email);
+	 inserePedido($name,$address,$phone,$email);
  }
 ?>
 
